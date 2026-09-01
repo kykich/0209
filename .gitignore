@@ -1,0 +1,32 @@
+# --- Секретные файлы (НИКОГДА не загружать на GitHub!) ---
+apidpsk.txt
+api_key.txt
+*.key
+.env
+.env.*
+
+# --- Папка с результатами (HTML) ---
+answer/
+
+# --- Временные файлы Python ---
+__pycache__/
+*.py[cod]
+*.so
+
+# --- Виртуальные окружения ---
+venv/
+.venv/
+env/
+
+# --- IDE ---
+.vscode/
+.idea/
+
+# --- OS ---
+Thumbs.db
+.DS_Store
+
+# --- Сборка PyInstaller (если вдруг) ---
+build/
+dist/
+*.spec
