@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTK/RTCM + DeepSeek</title>
+    <script>
+        // Если страницу открыли как ЛОКАЛЬНЫЙ файл (file:///...), а модель
+        // обслуживает встроенный HTTP-сервер проекта — автоматически
+        // переходим на порт сервера, где работает интерфейс и /api/ask.
+        (function () {
+            try {
+                if (window.location.protocol === "file:") {
+                    var port = window.RTK_SERVER_PORT || 8000;
+                    var host = window.RTK_SERVER_HOST || "127.0.0.1";
+                    window.location.replace("http://" + host + ":" + port + "/");
+                }
+            } catch (e) { /* не мешаем загрузке */ }
+        })();
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="page">
+        <header>
+            <h1>RTK/RTCM + DeepSeek</h1>
+            <p class="subtitle">Справка по геодезии и RTK‑поправкам через языковую модель</p>
+        </header>
+
+        <section class="card form-card">
+            <label class="field">
+                <span class="label">Ваш вопрос по геодезии / RTK‑поправкам</span>
+                <textarea id="question" rows="3"
+                          placeholder="Вопрос по геодезии или RTK-поправкам: например, какие бывают виды RTK-поправок"></textarea>
+            </label>
+
+            <fieldset class="field">
+                <span class="label">В каком виде выдать ответ?</span>
+                <div class="radios">
+                    <label><input type="radio" name="format" value="short"> Короткий</label>
+                    <label><input type="radio" name="format" value="full" checked> Полный</label>
+                </div>
+            </fieldset>
+
+            <div class="actions">
+            <button id="submit" type="button">Получить ответ</button>
+                <button id="newchat" type="button" class="secondary" title="Начать новый разговор (сбросить историю)">Новый разговор</button>
+                <button id="finish" type="button" class="quit" title="Закрыть вкладку">Закончить</button>
+    </div>
+        </section>
+
+        <div id="session-note" class="session-note"></div>
+
+        <section id="status" class="status" hidden></section>
+
+        <section id="result" class="card result-card" hidden></section>
+
+        <section id="tips" class="card tips-card" hidden>
+            <h2>Возможно, вас интересует</h2>
+            <ul id="tips-list"></ul>
+        </section>
+
+        <footer>
+            Встроенный HTTP‑сервер Python · модель <span id="model"></span>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
+
+

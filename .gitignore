@@ -30,3 +30,8 @@ Thumbs.db
 build/
 dist/
 *.spec
+
+# --- Логи/вывод при запуске сервера (не в git) ---
+srv_out.txt
+srv_err.txt
+*.log
