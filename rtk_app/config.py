@@ -6,11 +6,8 @@ import os
 # Корень проекта — родитель папки, где лежит пакет rtk_app.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Файл с API-ключом DeepSeek (лежит в корне, секретно).
+# Папка с API-ключом DeepSeek (лежит в корне, секретно).
 KEY_FILE = os.path.join(BASE_DIR, "apidpsk.txt")
-
-# Папка с сохранёнными HTML-ответами (результаты, не в git).
-OUTPUT_DIR = os.path.join(BASE_DIR, "answer")
 
 # Папка состояний сессии (переносится между машинами через git).
 # Это НЕ gitignore-папка: файлы сессий ездят вместе с кодом.

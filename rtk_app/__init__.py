@@ -1,14 +1,13 @@
 """
-Пакет rtk_app — консольная утилита RTK/RTCM + DeepSeek.
+Пакет rtk_app — логика веб-утилиты RTK/RTCM + DeepSeek.
 
 Содержит модули:
   config      — настройки и константы;
   key_store   — чтение API-ключа;
   deepseek    — клиент DeepSeek API;
-  topic       — проверка темы вопроса;
+  topic       — отсечка темы вопроса через модель;
   html_report — построение HTML-ответа;
-  ui          — консольный пользовательский интерфейс;
-  service     — оркестрация всего рабочего процесса.
+  session     — сохранение диалога.
 """
 
 __all__ = [
@@ -17,8 +16,7 @@ __all__ = [
     "deepseek",
     "topic",
     "html_report",
-    "ui",
-    "service",
+    "session",
 ]
 
 __version__ = "1.0.0"

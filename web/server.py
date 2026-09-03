@@ -24,17 +24,8 @@ from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from rtk_app import config, deepseek, html_report, session as session_io
-from rtk_app.topic import is_related_to_rtk
+from rtk_app.topic import build_redirect, classify_theme
 
-# Подсказки для случаев, когда вопрос вне темы геодезии/RTK.
-TIPS = [
-    "Какие бывают виды RTK-поправок",
-    "Что такое базовые и референц-станции в геодезии",
-    "Чем отличается тахеометр от GNSS-приёмника",
-    "Отличия поправок CMR, CMR+ и RTCM",
-    "Как выполняется нивелирование / определение высот",
-    "Что такое MSM-поправки в RTCM",
-]
 
 class _ServerState:
     """Общее состояние между обработчиками: ключ API и блокировка сессии."""
@@ -178,28 +169,44 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             return self._send_json(400, {"ok": False, "error": "Вопрос пустой."})
 
         answer_format = data.get("format", "full")
-        if answer_format not in ("short", "full"):
+        if answer_format not in ("short", "medium", "full"):
             answer_format = "full"
 
         api_key = _ServerState.api_key
 
-        # 1) Проверка темы
-        on_topic = is_related_to_rtk(api_key, question)
-        if not on_topic:
+        # 1) Ступень 1 — "простое уточнение": классификатор через модель
+        #    определяет, относится ли вопрос к геодезии.
+        topic, domain = classify_theme(api_key, question)
+
+        # 1a) Ступень 2 — вопрос не по геодезии: предлагаем обратиться к
+        #     профильному специалисту по распознанному контексту. Такой ход
+        #     НЕ сохраняем в историю сессии.
+        if topic == "other":
+            redirect = build_redirect(api_key, question, domain)
+            if not redirect:
+                redirect = (
+                    "Этот вопрос, похоже, не относится к геодезии. "
+                    "Рекомендуем обратиться к профильному специалисту."
+                )
+            answer_fragment = html_report.text_to_html_paragraphs(redirect)
             return self._send_json(200, {
                 "ok": True,
                 "on_topic": False,
-                "message": "Вопрос не по теме (не про геодезию и RTK-поправки).",
-                "tips": TIPS,
+                "html": answer_fragment,
+                "question": question,
             })
 
         # 2) Продолжаем диалог: грузим историю сессии из файла
         with _ServerState.lock:
             history = session_io.load()
-            # Если сессии ещё нет — начинаем новый разговор с этим вопросом
-            if not history or history[0].get("role") != "system":
-                system = deepseek.build_system(question)
-                history = [{"role": "system", "content": system}]
+            # Системный промпт (роль) соответствует выбранному формату и
+            # переустанавливается перед КАЖДЫМ запросом — при смене формата в
+            # середине диалога персона/ответ корректно обновляется.
+            role_system = deepseek.build_role_system(answer_format)
+            if history and history[0].get("role") == "system":
+                history[0] = {"role": "system", "content": role_system}
+            else:
+                history = [{"role": "system", "content": role_system}]
             user_content = deepseek.build_user_message(question, answer_format)
             history.append({"role": "user", "content": user_content})
 
@@ -226,8 +233,10 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         except Exception:  # noqa: BLE001
             answer_fragment = "<p>Не удалось отформатировать ответ.</p>"
 
+        _fmt_names = {"short": "короткий", "medium": "средний", "full": "развёрнутый"}
+        fmt_name = _fmt_names.get(answer_format, answer_format)
         meta = (f"Сгенерировано: {ts} · Модель: {config.MODEL} · "
-                f"Формат: {'короткий' if answer_format == 'short' else 'полный'}")
+                f"Формат: {fmt_name}")
 
         return self._send_json(200, {
             "ok": True,
