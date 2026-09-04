@@ -5,9 +5,7 @@
     var qEl = document.getElementById("question");
     var submit = document.getElementById("submit");
     var statusEl = document.getElementById("status");
-    var resultEl = document.getElementById("result");
-    var tipsEl = document.getElementById("tips");
-    var tipsList = document.getElementById("tips-list");
+        var resultEl = document.getElementById("result");
     var modelEl = document.getElementById("model");
 
     function setStatus(message, kind) {
@@ -23,20 +21,9 @@
         resultEl.hidden = false;
     }
 
-    function showTips(tips) {
-        tipsList.innerHTML = "";
-        tips.forEach(function (tip) {
-            var li = document.createElement("li");
-            li.textContent = "• " + tip;
-            tipsList.appendChild(li);
-        });
-        tipsEl.hidden = false;
-    }
-
-    function resetOutput() {
+        function resetOutput() {
         resultEl.hidden = true;
         resultEl.innerHTML = "";
-        tipsEl.hidden = true;
     }
 
     async function ask() {
@@ -74,18 +61,15 @@
                 return;
             }
 
-                        if (data.on_topic === false) {
+                                    if (data.on_topic === false) {
                 if (data.html) {
                     // Вопрос не по геодезии: модель дала рекомендацию
                     // обратиться к профильному специалисту — показываем её
                     // как обычный ответ (в сессию такой ход не попадает).
                     setStatus("Вопрос вне геодезии — рекомендация специалиста.", "ok");
                     showResult(data.html || "", data.meta || "");
-                    tipsEl.hidden = true;
                 } else {
                     setStatus(data.message || "Вопрос не по теме (не про RTK-поправки).", "error");
-                    if (data.tips && data.tips.length) showTips(data.tips);
-                    else tipsEl.hidden = true;
                 }
                 return;
             }

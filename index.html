@@ -34,33 +34,28 @@
                           placeholder="Вопрос по геодезии или RTK-поправкам: например, какие бывают виды RTK-поправок"></textarea>
             </label>
 
-            <fieldset class="field">
+                        <fieldset class="field">
                 <span class="label">В каком виде выдать ответ?</span>
-                                <div class="radios">
-                                    <label><input type="radio" name="format" value="short"> Короткий</label>
-                                    <label><input type="radio" name="format" value="medium"> Средний</label>
-                                    <label><input type="radio" name="format" value="full" checked> Развёрнутый</label>
-                                    <label><input type="radio" name="format" value="kolhoz" title="Повар / Геодезист / Архитектор — три мнения об одном вопросе"> Колхоз</label>
-                                </div>
+                <div class="radios">
+                    <label><input type="radio" name="format" value="short"> Короткий</label>
+                    <label><input type="radio" name="format" value="medium"> Средний</label>
+                    <label><input type="radio" name="format" value="full" checked> Развёрнутый</label>
+                    <label><input type="radio" name="format" value="kolhoz" title="Повар / Геодезист / Архитектор — три мнения об одном вопросе"> Колхоз</label>
+                </div>
             </fieldset>
 
             <div class="actions">
-            <button id="submit" type="button">Получить ответ</button>
+                <button id="submit" type="button">Получить ответ</button>
                 <button id="newchat" type="button" class="secondary" title="Начать новый разговор (сбросить историю)">Новый разговор</button>
                 <button id="finish" type="button" class="quit" title="Закрыть вкладку">Закончить</button>
-    </div>
+            </div>
         </section>
 
         <div id="session-note" class="session-note"></div>
 
         <section id="status" class="status" hidden></section>
 
-        <section id="result" class="card result-card" hidden></section>
-
-        <section id="tips" class="card tips-card" hidden>
-            <h2>Возможно, вас интересует</h2>
-            <ul id="tips-list"></ul>
-        </section>
+                <section id="result" class="card result-card" hidden></section>
 
         <footer>
             Встроенный HTTP‑сервер Python · модель <span id="model"></span>

@@ -163,10 +163,6 @@ button.quit:hover { background: #7f8c8d; }
 #result ul { padding-left: 24px; }
 #result .error-box { background: #fee; border-left: 4px solid #e74c3c; color:#c0392b; padding: 12px 16px; border-radius: 6px; }
 
-.tips-card { border-left-color: var(--green); }
-.tips-card h2 { margin-top: 0; font-size: 1.15em; color: #34495e; }
-.tips-card li { margin-bottom: 6px; }
-
 .hidden { display: none !important; }
 
 footer {

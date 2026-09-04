@@ -1,12 +1,10 @@
 """
-Построение HTML-документа с текстом вопроса и ответа.
-Включает: экранирование, парсинг Markdown-таблиц, сборку полной страницы.
+Построение HTML-фрагмента ответа из текста модели.
+Включает: экранирование HTML, inline-Markdown, парсинг Markdown-таблиц.
 """
 import re
 
-from . import config
-
-__all__ = ["escape_html", "build_html"]
+__all__ = ["escape_html", "apply_inline_markdown", "text_to_html_paragraphs"]
 
 
 def escape_html(text):
@@ -31,13 +29,10 @@ def apply_inline_markdown(text):
     # жирный **text** / __text__
     text = re.sub(r"\*\*([^*]+?)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"__([^_]+?)__", r"<strong>\1</strong>", text)
-    # курсив *text* / _text_
+        # курсив *text* / _text_
     text = re.sub(r"\*([^*\n]+?)\*", r"<em>\1</em>", text)
     text = re.sub(r"_([^_\n]+?)_", r"<em>\1</em>", text)
     return text
-
-
-
 
 
 def parse_markdown_table_block(lines, start_idx):
@@ -151,131 +146,3 @@ def text_to_html_paragraphs(text):
         html.append("</ul>")
 
     return "\n".join(html)
-
-
-def build_html(question, answer, ts, answer_format="full"):
-    """Формирует полный HTML-документ."""
-    q_html = text_to_html_paragraphs(question)
-    a_html = text_to_html_paragraphs(answer)
-
-    # При полном ответе — выравнивание 2-го столбца по ширине
-    justify_css = "text-align: justify;" if answer_format == "full" else ""
-
-    return f"""<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ответ DeepSeek — {ts}</title>
-    <style>
-        body {{
-            font-family: 'Segoe UI', Arial, sans-serif;
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
-            line-height: 1.6;
-            color: #2c3e50;
-            background: #f9f9fb;
-        }}
-        h1 {{
-            color: #1a1a2e;
-            border-bottom: 3px solid #4d6bfe;
-            padding-bottom: 10px;
-        }}
-        .meta {{
-            color: #888;
-            font-size: 0.9em;
-            margin-bottom: 30px;
-        }}
-        .block {{
-            background: #fff;
-            border-radius: 10px;
-            padding: 25px 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border-left: 5px solid #2ecc71;
-        }}
-        .block.question {{
-            border-left-color: #4d6bfe;
-        }}
-        .block h2 {{
-            margin-top: 0;
-            color: #34495e;
-            font-size: 1.3em;
-        }}
-        h3 {{ color: #4d6bfe; }}
-        h4 {{ color: #663399; }}
-        ul {{ padding-left: 25px; }}
-        li {{ margin-bottom: 6px; }}
-        code {{
-            background: #f0f0f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.92em;
-        }}
-        pre {{
-            background: #282c34;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-        }}
-        .error {{
-            background: #fee;
-            border-left-color: #e74c3c;
-            color: #c0392b;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 0.95em;
-            background: #fff;
-        }}
-        th {{
-            background: #4d6bfe;
-            color: #fff;
-            text-align: center;
-            padding: 10px 12px;
-            border: 1px solid #4d6bfe;
-        }}
-        td {{
-            padding: 9px 12px;
-            border: 1px solid #e0e0e8;
-            vertical-align: top;
-        }}
-        tr:nth-child(even) td {{
-            background: #f7f8fc;
-        }}
-        .date-col {{
-            white-space: nowrap;
-            font-weight: 600;
-            color: #1a1a2e;
-        }}
-        .desc-col {{
-            width: 80%;
-            {justify_css}
-        }}
-        .size-col {{
-            text-align: center;
-            white-space: nowrap;
-            font-weight: 600;
-            color: #663399;
-        }}
-    </style>
-</head>
-<body>
-    <h1>Ответ DeepSeek API</h1>
-    <div class="meta">Сгенерировано: {ts} &nbsp;•&nbsp; Модель: {config.MODEL}</div>
-
-    <div class="block question">
-        <h2>Вопрос</h2>
-        {q_html}
-    </div>
-
-    <div class="block">
-        <h2>Ответ</h2>
-        {a_html}
-    </div>
-</body>
-</html>"""
