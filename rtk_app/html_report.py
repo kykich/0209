@@ -18,6 +18,28 @@ def escape_html(text):
             .replace('"', "&quot;"))
 
 
+def apply_inline_markdown(text):
+    """Преобразует inline-Markdown (жирный, курсив, код) в HTML-теги.
+
+    Вызывается ПОСЛЕ escape_html — на безопасном тексте, у которого нет
+    настоящих тегов, поэтому подстановка не ломает уже сгенерированный код.
+    Порядок: сначала код (чтобы звёздочки/подчёркивания внутри него не
+    размечались), затем жирный, затем курсив.
+    """
+    # inline-код
+    text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
+    # жирный **text** / __text__
+    text = re.sub(r"\*\*([^*]+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"__([^_]+?)__", r"<strong>\1</strong>", text)
+    # курсив *text* / _text_
+    text = re.sub(r"\*([^*\n]+?)\*", r"<em>\1</em>", text)
+    text = re.sub(r"_([^_\n]+?)_", r"<em>\1</em>", text)
+    return text
+
+
+
+
+
 def parse_markdown_table_block(lines, start_idx):
     """Собирает строки Markdown-таблицы, начиная с start_idx, в HTML-таблицу.
 
@@ -66,6 +88,7 @@ def parse_markdown_table_block(lines, start_idx):
 def text_to_html_paragraphs(text):
     """Разбивает текст на абзацы, списки и Markdown-таблицы."""
     text = escape_html(text)
+    text = apply_inline_markdown(text)
     lines = text.split("\n")
     html = []
     in_list = False

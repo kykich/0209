@@ -169,7 +169,7 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             return self._send_json(400, {"ok": False, "error": "Вопрос пустой."})
 
         answer_format = data.get("format", "full")
-        if answer_format not in ("short", "medium", "full"):
+        if answer_format not in ("short", "medium", "full", "kolhoz"):
             answer_format = "full"
 
         api_key = _ServerState.api_key
@@ -199,10 +199,13 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         # 2) Продолжаем диалог: грузим историю сессии из файла
         with _ServerState.lock:
             history = session_io.load()
-            # Системный промпт (роль) соответствует выбранному формату и
-            # переустанавливается перед КАЖДЫМ запросом — при смене формата в
-            # середине диалога персона/ответ корректно обновляется.
-            role_system = deepseek.build_role_system(answer_format)
+            # Системный промпт (роль или режим «Колхоз») соответствует
+            # выбранному формату и переустанавливается перед КАЖДЫМ запросом —
+            # при смене формата в середине диалога персона/ответ обновляется.
+            if answer_format == "kolhoz":
+                role_system = deepseek.build_kolhoz_system()
+            else:
+                role_system = deepseek.build_role_system(answer_format)
             if history and history[0].get("role") == "system":
                 history[0] = {"role": "system", "content": role_system}
             else:
@@ -233,7 +236,8 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         except Exception:  # noqa: BLE001
             answer_fragment = "<p>Не удалось отформатировать ответ.</p>"
 
-        _fmt_names = {"short": "короткий", "medium": "средний", "full": "развёрнутый"}
+        _fmt_names = {"short": "короткий", "medium": "средний", "full": "развёрнутый",
+                      "kolhoz": "колхоз (три мнения)"}
         fmt_name = _fmt_names.get(answer_format, answer_format)
         meta = (f"Сгенерировано: {ts} · Модель: {config.MODEL} · "
                 f"Формат: {fmt_name}")
