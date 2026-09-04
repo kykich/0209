@@ -39,4 +39,7 @@ dist/
 # --- Логи/вывод при запуске сервера (не в git) ---
 srv_out.txt
 srv_err.txt
+run_out.txt
+run_err.txt
+run_*.txt
 *.log
